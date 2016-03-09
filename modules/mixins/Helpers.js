@@ -49,7 +49,7 @@ var Helpers = {
          */
 
         this.scrollTo(this.props.to);
-
+        
       },
 
       stateHandler: function() {
@@ -70,30 +70,27 @@ var Helpers = {
         var isOutside = (offsetY < topBound || offsetY > bottomBound);
         var activeLink = scroller.getActiveLink();
 
-        if (isOutside && activeLink === to) {
-          scroller.setActiveLink(void 0);
-          this.setState({ active : false });
-
-        } else if (isInside && activeLink != to) {
+        if (isInside && activeLink != to) {
           scroller.setActiveLink(to);
           this.setState({ active : true });
-
           if(this.props.onSetActive) {
             this.props.onSetActive(to);
           }
-
           scrollSpy.updateStates();
-        }
+          console.log('active!', scroller.getActiveLink())
+         }
       },
 
       componentDidMount: function() {
         if (this.props.spy) {
-          scrollSpy.mount(this.stateHandler, this.spyHandler);
+          scrollSpy.registerLink(
+              this.props.to, this.stateHandler, this.spyHandler);
         }
       },
 
       componentWillUnmount: function() {
-        scrollSpy.unmount(this.stateHandler, this.spyHandler);
+        scrollSpy.unregisterLink(
+            this.props.to, this.stateHandler, this.spyHandler);
       },
 
       render: function() {
@@ -127,9 +124,11 @@ var Helpers = {
       componentDidMount: function() {
         var domNode = ReactDOM.findDOMNode(this);
         scroller.register(this.props.name, domNode);
+        scrollSpy.registerElement(this.props.name);
       },
       componentWillUnmount: function() {
         scroller.unregister(this.props.name);
+        scrollSpy.unregisterElement(this.props.name);
       },
       render: function() {
         return React.createElement(Component, this.props);
